@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a2d9097a-71a4-4e6b-acef-5a8f2422c4e6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Thread1/Thread1.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Thread1/src/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,8 +37,13 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="jdk.selected.JAVA_MODULE" value="13" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
   </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
@@ -65,6 +73,7 @@
       <option name="presentableId" value="Default" />
       <updated>1584120995352</updated>
       <workItem from="1584121002877" duration="1913000" />
+      <workItem from="1584388124832" duration="262000" />
     </task>
     <servers />
   </component>
@@ -72,6 +81,10 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="440" y="192" key="#Project_Structure" timestamp="1584482468550">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="440" y="192" key="#Project_Structure/0.0.1680.1050@0.0.1680.1050" timestamp="1584482468550" />
     <state width="1638" height="295" key="GridCell.Tab.0.bottom" timestamp="1584337418252">
       <screen x="0" y="23" width="1680" height="965" />
     </state>
@@ -96,9 +109,9 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="494" y="353" key="com.intellij.ide.util.TipDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1584388122985" />
-    <state x="217" y="131" key="new project wizard" timestamp="1584336605874">
+    <state x="217" y="131" key="new project wizard" timestamp="1584482461777">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="217" y="131" key="new project wizard/0.0.1680.1050@0.0.1680.1050" timestamp="1584336605874" />
+    <state x="217" y="131" key="new project wizard/0.0.1680.1050@0.0.1680.1050" timestamp="1584482461777" />
   </component>
 </project>
