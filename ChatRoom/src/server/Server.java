@@ -4,6 +4,9 @@ import java.net.DatagramSocket;
 
 public class Server {
 
+    // A datagram socket is the sending or receiving point for a packet delivery service.
+    // Each packet sent or received on a datagram socket is individually addressed and routed.
+    // Multiple packets sent from one machine to another may be routed differently, and may arrive in any order.
     private static DatagramSocket socket;
 
 
