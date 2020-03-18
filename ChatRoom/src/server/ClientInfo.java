@@ -2,7 +2,7 @@ package server;
 
 import java.net.InetAddress;
 
-// store information
+// store individual client information
 public class ClientInfo {
     private InetAddress address;
     private int port;
