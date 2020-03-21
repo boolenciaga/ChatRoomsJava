@@ -1,4 +1,6 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,7 +21,7 @@ public class Server
     private int numOfClients = 0;
 
     private ArrayList<ClientConnection> clientList = new ArrayList<>();
-    private ArrayBlockingQueue<Messages.ChatMsg> msgQueue = new ArrayBlockingQueue<>(1000);
+    private ArrayBlockingQueue<ChatMsg> msgQueue = new ArrayBlockingQueue<>(1000);
 
 
     // METHODS
@@ -63,12 +65,12 @@ public class Server
                 try
                 {
                     //pull message off queue
-                    Messages.ChatMsg nextMsg = msgQueue.take();
+                    ChatMsg nextMsg = msgQueue.take();
 
                     //propagate message to all running clients
                     for (ClientConnection client : clientList)
                     {
-                        if(client.myThread.isAlive())
+                        if(client.myThread.isAlive() && !nextMsg.sentByUser.equals(client.clientName))
                             client.sendMessage(nextMsg);
                     }
                 }
@@ -84,6 +86,7 @@ public class Server
     private class ClientConnection implements Runnable
     {
         private Socket serverToClientSocket;
+        private String clientName;
         private int clientNumber;
         private Thread myThread;
 
@@ -110,7 +113,7 @@ public class Server
             myThread.start();
         }
 
-        public void sendMessage(Messages.ChatMsg o)
+        public void sendMessage(ChatMsg o)
         {
             try
             {
@@ -131,11 +134,16 @@ public class Server
                 objectOutputToClient.writeInt(clientNumber);
                 objectOutputToClient.flush();
 
+
+                //read in client name
+                clientName = objectInputFromClient.readUTF();
+
+
                 //Serve the client
                 while(true)
                 {
                     //receive messages
-                    Messages.ChatMsg receivedMsg = (Messages.ChatMsg) objectInputFromClient.readObject();
+                    ChatMsg receivedMsg = (ChatMsg) objectInputFromClient.readObject();
 
                     System.out.println("Server RECEIVED : " + receivedMsg.txt + " {from "+receivedMsg.sentByUser+"}\n");
 
