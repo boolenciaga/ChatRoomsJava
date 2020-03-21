@@ -1,10 +1,8 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class Server
 {
@@ -19,6 +17,9 @@ public class Server
     private int numOfClients = 0;
 
 
+    private ArrayBlockingQueue<Messages.ChatMsg> msgQueue = new ArrayBlockingQueue<Messages.ChatMsg>(1000);
+
+
     public Server()
     {
         System.out.println("Server turned on\n");
@@ -27,6 +28,9 @@ public class Server
         {
             //establish server on a port
             ServerSocket ss = new ServerSocket(portNumber);
+
+            //start publisher on a thread
+
 
             //server open for connections while some condition
             while(true)
@@ -47,7 +51,27 @@ public class Server
     }
 
 
-    private static class ClientConnection implements Runnable
+    private class Publisher implements Runnable
+    {
+        @Override
+        public void run()
+        {
+            while(true)
+            {
+                try
+                {
+                    Messages.ChatMsg nextMsg = msgQueue.take();
+
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    private class ClientConnection implements Runnable
     {
         private Socket serverToClientSocket;
         private int clientNumber;
@@ -64,20 +88,33 @@ public class Server
             try
             {
                 //Establish IO streams
-                BufferedReader inputFromClient = new BufferedReader(new InputStreamReader(serverToClientSocket.getInputStream()));
+                ObjectInputStream objectInputFromClient = new ObjectInputStream(serverToClientSocket.getInputStream());
+                ObjectOutputStream objectOutputToClient = new ObjectOutputStream(serverToClientSocket.getOutputStream());
 
-                PrintWriter outputToClient = new PrintWriter(serverToClientSocket.getOutputStream(), true);
+                BufferedReader strInputFromClient = new BufferedReader(new InputStreamReader(serverToClientSocket.getInputStream()));
+                PrintWriter strOutputToClient = new PrintWriter(serverToClientSocket.getOutputStream(), true);
+
+                DataOutputStream primOutputToClient = new DataOutputStream(serverToClientSocket.getOutputStream());
+
+                //send client their number
+                primOutputToClient.write(clientNumber);
 
                 //Serve the client
                 while(true)
                 {
-                    String incomingString = inputFromClient.readLine();
-                    System.out.println("Server RECEIVED : " + incomingString + " {from client #"+clientNumber+"}\n");
+                    //receive messages
+                    Messages.ChatMsg receivedMsg = (Messages.ChatMsg) objectInputFromClient.readObject();
 
-                    outputToClient.println(incomingString + " {sent back from server}");
+                    System.out.println("Server RECEIVED : " + receivedMsg.txt + " {from "+receivedMsg.sentByUser+"}\n");
+
+                    //store message in blocking queue
+                    msgQueue.add(receivedMsg);
+
+
+//                    outputToClient.println(incomingString + " {sent back from server}");
                 }
             }
-            catch(IOException e) {
+            catch(IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
