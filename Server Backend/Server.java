@@ -125,6 +125,12 @@ public class Server
             }
         }
 
+        public void disconnect( int clientNumber )
+        {
+            clientList.remove( clientNumber );
+            numOfClients--;
+        }
+
         @Override
         public void run()
         {
@@ -154,6 +160,10 @@ public class Server
             catch(IOException | ClassNotFoundException e) {
                 System.out.println("exception caught in CLIENT-run() -- " + e.getMessage());
                 e.printStackTrace();
+            }
+            finally
+            {
+                disconnect(clientNumber);
             }
         }
     }
