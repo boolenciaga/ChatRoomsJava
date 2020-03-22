@@ -60,7 +60,7 @@ public class ServerManager
     {
         //DATA MEMBERS
         private Socket socket;
-        private String userName;
+        private String clientsUserName;
         private Thread clientThread;
 
         //this connection's socket streams
@@ -85,13 +85,14 @@ public class ServerManager
             try
             {
                 //get user name from cM
-                userName = objectInputFromClientManager.readUTF();
+                clientsUserName = objectInputFromClientManager.readUTF();
 
+                //process chat room requests
                 while(true)
                 {
                     //read in a chat room name request
                     String chatRoomName = objectInputFromClientManager.readUTF();
-                    System.out.println("got chat room request \"" + chatRoomName + "\" from " + userName); //test print
+                    System.out.println("got chat room request \"" + chatRoomName + "\" from " + clientsUserName); //test print
 
                     boolean isNewRoom = false;
 

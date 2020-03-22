@@ -12,7 +12,7 @@ public class ChatRoomServer implements Runnable
     //DATA MEMBERS
     private ServerSocket ss;
     private int chatRoomPort;
-    private String chatRoomName;
+    private final String chatRoomName;
     private Thread chatRoomThread;
     private int numInRoom = 0;
 
@@ -102,7 +102,7 @@ public class ChatRoomServer implements Runnable
                 //read in client name
                 memberName = objectInputFromClient.readUTF();
 
-                //Serve the client
+                //Receive messages from clients
                 while(true)
                 {
                     //receive messages
