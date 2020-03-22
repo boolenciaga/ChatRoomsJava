@@ -1,3 +1,5 @@
+package sample;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -6,13 +8,26 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.stage.Stage;
 
-public class Server
+public class Server extends Application
 {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        primaryStage.setTitle("Server");
+        primaryStage.show();
+    }
+
     //driver for testing class
     public static void main(String[] args)
     {
         new Server();
+        Application.launch(args);
     }
 
 
@@ -163,7 +178,7 @@ public class Server
             }
             finally
             {
-                disconnect(clientNumber);
+                disconnect( clientNumber );
             }
         }
     }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<TitledPane alignment="CENTER" animated="false" collapsible="false" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" text="Server" textAlignment="CENTER" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.2-internal">
+  <content>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: linear-gradient(bottom to top, #23272a, #2c2f33);">
+         <children>
+            <ListView layoutX="29.0" layoutY="24.0" prefHeight="308.0" prefWidth="540.0" />
+         </children></AnchorPane>
+  </content>
+   <font>
+      <Font name="System Bold" size="20.0" />
+   </font>
+</TitledPane>
