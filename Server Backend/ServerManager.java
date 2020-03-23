@@ -13,7 +13,7 @@ public class ServerManager
         new ServerManager();
     }
 
-    //DATA MEMBERS
+    // DATA MEMBERS
 
     //the port this ServerManager is on
     private final int serverPort = 7777;
@@ -24,8 +24,9 @@ public class ServerManager
     //a map which holds the currently existing chat rooms
     private HashMap<String, ChatRoomServer> chatRoomMap = new HashMap<>();
 
-    //METHODS
-    public ServerManager()
+    // METHODS
+
+    private ServerManager()
     {
         System.out.println("ServerManager turned on\n");
 
