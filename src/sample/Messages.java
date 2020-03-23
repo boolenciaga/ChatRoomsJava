@@ -1,35 +1,85 @@
 package sample;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
-public class Messages implements Serializable
+class Messages implements Serializable
 {
-    String messageType;
-    String sentByUser;
+    final String messageType;
+    final String sentBy;
+    final String doNotSendTo;
 
-    Messages(String msgType, String sentBy)
+    Messages(String msgType, String sender)
     {
         messageType = msgType;
-        sentByUser = sentBy;
+        this.sentBy = sender;
+        doNotSendTo = sender;
     }
+}
 
-    Messages()
+
+class ChatRoomInfoMsg extends Messages
+{
+    final int chatRoomPort;
+    final String chatRoomName;
+    final boolean hadToBeCreated;
+
+    ChatRoomInfoMsg(int portNum, String roomName, boolean isBrandNewRoom)
     {
+        super("ChatRoomInfo", "SeverManager");
+        chatRoomPort = portNum;
+        chatRoomName = roomName;
+        hadToBeCreated = isBrandNewRoom;
+    }
+}
 
+
+class JoinedChatMsg extends Messages
+{
+    JoinedChatMsg(String userName)
+    {
+        super("JoinedChatMsg", userName);
+    }
+}
+
+
+class LeftChatMsg extends Messages
+{
+    LeftChatMsg(String userName)
+    {
+        super("LeftChatMsg", userName);
     }
 }
 
 
 class ChatMsg extends Messages
 {
-    String txt;
-    String channelToPublishTo;
+    final String txt;
 
-    ChatMsg(String txt, String channel, String userName)
+    ChatMsg(String txt, String userName)
     {
         super("ChatMsg", userName);
         this.txt = txt;
-        channelToPublishTo = channel;
+    }
+
+    //copy constructor but resets sentBy
+    ChatMsg(ChatMsg srcObj, String messageFrom)
+    {
+        this(srcObj.txt, messageFrom);
+    }
+}
+
+
+class ChatHistoryMsg extends Messages
+{
+    ArrayList<ChatMsg> chatHistory;
+    String receivingName;
+
+    ChatHistoryMsg(ArrayList<ChatMsg> chatLog, String roomName, String sendTo)
+    {
+        super("ChatHistoryMsg", roomName);
+        chatHistory = (ArrayList<ChatMsg>) chatLog.clone();
+        receivingName = sendTo;
     }
 }
