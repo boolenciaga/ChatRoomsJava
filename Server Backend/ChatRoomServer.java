@@ -1,33 +1,37 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ChatRoomServer implements Runnable
 {
     //DATA MEMBERS
     private ServerSocket ss;
     private int chatRoomPort;
-    private String chatRoomName;
+    private final String chatRoomName;
     private Thread chatRoomThread;
     private int numInRoom = 0;
 
+    private Lock lock = new ReentrantLock(true);
+
     private ArrayList<MemberConnection> membersInTheRoom = new ArrayList<>();
-    private ArrayBlockingQueue<ChatMsg> msgQueue = new ArrayBlockingQueue<>(1000);
+    private ArrayBlockingQueue<Messages> msgQueue = new ArrayBlockingQueue<>(1000);
+    private ArrayList<ChatMsg> chatHistory = new ArrayList<>();
 
 
     //METHODS
-    public ChatRoomServer(String roomName)
+    ChatRoomServer(String roomName)
     {
         chatRoomName = roomName;
 
         try
         {
-            //establish server on an available port
+            //establish chat room on an available port
             ss = new ServerSocket(0);
             chatRoomPort = ss.getLocalPort();
         }
@@ -50,7 +54,7 @@ public class ChatRoomServer implements Runnable
             //chat room open for connections to new members
             while(true)
             {
-                Socket socket = ss.accept();
+                Socket socket = ss.accept(); //blocking thread
 
                 ++numInRoom;
 
@@ -72,18 +76,18 @@ public class ChatRoomServer implements Runnable
         private String memberName;
         private Thread thisThread;
 
-        ObjectInputStream objectInputFromClient;
-        ObjectOutputStream objectOutputToClient;
+        ObjectInputStream objectInputFromMember;
+        ObjectOutputStream objectOutputToMember;
 
-        public MemberConnection(Socket socket)
+        MemberConnection(Socket socket)
         {
             socketToMember = socket;
 
             //Wrap the IO streams
             try
             {
-                objectInputFromClient = new ObjectInputStream(socketToMember.getInputStream());
-                objectOutputToClient = new ObjectOutputStream(socketToMember.getOutputStream());
+                objectInputFromMember = new ObjectInputStream(socketToMember.getInputStream());
+                objectOutputToMember = new ObjectOutputStream(socketToMember.getOutputStream());
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -99,14 +103,18 @@ public class ChatRoomServer implements Runnable
         {
             try
             {
-                //read in client name
-                memberName = objectInputFromClient.readUTF();
+                //read in new client's name
+                memberName = objectInputFromMember.readUTF();
 
-                //Serve the client
+                //push member-has-joined and chat-history messages
+                msgQueue.add(new JoinedChatMsg(memberName));
+                msgQueue.add(new ChatHistoryMsg(chatHistory, chatRoomName, memberName));
+
+                //Receive messages from clients
                 while(true)
                 {
                     //receive messages
-                    ChatMsg receivedMsg = (ChatMsg) objectInputFromClient.readObject();
+                    ChatMsg receivedMsg = (ChatMsg) objectInputFromMember.readObject();
 
                     System.out.println("Chat Room \"" + chatRoomName + "\" RECEIVED : " + receivedMsg.txt + " {from " + memberName + "}\n");
 
@@ -119,19 +127,25 @@ public class ChatRoomServer implements Runnable
             }
             catch(IOException | ClassNotFoundException e)
             {
-                System.out.println("exception caught in run() of "  + memberName + "'s MemberConnection object\n");
+                if(e instanceof IOException)
+                {
+                    msgQueue.add(new LeftChatMsg(memberName));
+                    membersInTheRoom.remove(this);
+                }
+
+                System.out.println("exception caught in run() of "  + memberName + "'s MemberConnection object");
                 e.printStackTrace();
             }
         }
 
-        void sendMessageFromPublisher(ChatMsg o)
+        void sendMessageFromPublisher(Messages msg)
         {
             try
             {
-                objectOutputToClient.writeObject(o);
+                objectOutputToMember.writeObject(msg);
             }
             catch (IOException e) {
-                System.out.println("exception caught in sendMessageFromPub() of " + memberName + "'s MemberConnection object\n");
+                System.out.println("exception caught in sendMessageFromPub() of " + memberName + "'s MemberConnection object");
                 e.printStackTrace();
             }
         }
@@ -148,17 +162,38 @@ public class ChatRoomServer implements Runnable
                 try
                 {
                     //pull message off queue
-                    ChatMsg nextMsg = msgQueue.take();
+                    Messages nextMsg = msgQueue.take();
 
-                    //propagate message to all running clients
-                    for (MemberConnection client : membersInTheRoom)
+                    //handle chat history messages differently
+                    if(nextMsg instanceof ChatHistoryMsg)
                     {
-                        if(client.thisThread.isAlive() && !nextMsg.sentBy.equals(client.memberName))
-                            client.sendMessageFromPublisher(nextMsg);
+                        ChatHistoryMsg msg = (ChatHistoryMsg) nextMsg;
+
+                        for (MemberConnection client : membersInTheRoom)
+                        {
+                            if(msg.receivingName.equals(client.memberName) && client.thisThread.isAlive())
+                            {
+                                client.sendMessageFromPublisher(nextMsg);
+                                break;
+                            }
+                        }
                     }
+                    else
+                    {
+                        //propagate message to appropriate clients
+                        for (MemberConnection client : membersInTheRoom)
+                        {
+                            if(!client.memberName.equals(nextMsg.doNotSendTo) && client.thisThread.isAlive())
+                                client.sendMessageFromPublisher(nextMsg);
+                        }
+                    }
+
+                    //store chat messages in chatHistory
+                    if(nextMsg instanceof ChatMsg)
+                        chatHistory.add((ChatMsg) nextMsg);
                 }
                 catch (InterruptedException e) {
-                    System.out.println("exception caught in Publisher's run()\n");
+                    System.out.println("exception caught in Publisher's run()");
                     e.printStackTrace();
                 }
             }
@@ -182,5 +217,5 @@ public class ChatRoomServer implements Runnable
     }
 
 
-    public int getChatRoomPort() {return chatRoomPort;}
+    int getChatRoomPort() {return chatRoomPort;}
 }
