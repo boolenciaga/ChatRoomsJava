@@ -8,18 +8,19 @@ import javafx.stage.Stage;
 
 public class Window extends Application
 {
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args)
     {
         Application.launch(args);
-        new ServerManager();
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("server.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("server.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+        new ServerManager();
     }
 
 }
